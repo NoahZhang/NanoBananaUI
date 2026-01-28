@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Node
+**/node_modules
+frontend/dist
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+backend/venv
+.venv
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Electron (not needed for Docker)
+electron/
+scripts/build-mac.sh
+
+# Docker (keep Dockerfile for reference but ignore in context)
+.dockerignore
+
+# Docs
+*.md
+
+# Test
+**/*.test.*
+**/*.spec.*
+
+# Logs
+*.log
+logs/

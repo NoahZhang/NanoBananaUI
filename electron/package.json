@@ -1,0 +1,86 @@
+{
+  "name": "nanobananaui",
+  "version": "1.0.0",
+  "description": "NanoBananaUI - AI Image Generation Studio",
+  "main": "main.js",
+  "author": "NanoBanana",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:dmg": "electron-builder --mac dmg",
+    "build:zip": "electron-builder --mac zip"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.nanobanana.ui",
+    "productName": "NanoBananaUI",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        }
+      ],
+      "icon": "icons/icon.icns",
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "NanoBananaUI",
+      "icon": "icons/icon.icns",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "../frontend/dist",
+        "to": "frontend/dist",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!venv/**/*",
+          "!__pycache__/**/*",
+          "!**/*.pyc"
+        ]
+      },
+      {
+        "from": "../backend/venv",
+        "to": "python/venv",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../auth",
+        "to": "auth",
+        "filter": ["**/*"]
+      }
+    ]
+  }
+}
