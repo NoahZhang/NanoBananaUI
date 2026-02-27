@@ -13,7 +13,7 @@ export interface ImageSettings {
 
 export interface ChatRequest {
   message: string;
-  images?: string[];
+  images?: string[];  // 原图或带遮罩的合成图
   history?: ChatMessage[];
   image_settings?: ImageSettings;
 }

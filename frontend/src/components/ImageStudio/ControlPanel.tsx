@@ -1,6 +1,7 @@
 import { ModeTabs } from './ModeTabs';
 import { ModelSelector } from './ModelSelector';
 import { ImageDropzone } from './ImageDropzone';
+import { MaskEditor } from './MaskEditor';
 import { PromptInput } from './PromptInput';
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ResolutionSelector } from './ResolutionSelector';
@@ -15,6 +16,7 @@ interface ControlPanelProps {
   referenceImages: string[];
   onAddReferenceImage: (imageBase64: string) => void;
   onRemoveReferenceImage: (index: number) => void;
+  onMaskChange: (mask: string) => void;
   prompt: string;
   onPromptChange: (value: string) => void;
   aspectRatio: string;
@@ -35,6 +37,7 @@ export function ControlPanel({
   referenceImages,
   onAddReferenceImage,
   onRemoveReferenceImage,
+  onMaskChange,
   prompt,
   onPromptChange,
   aspectRatio,
@@ -47,6 +50,8 @@ export function ControlPanel({
   isGenerating,
   error,
 }: ControlPanelProps) {
+  console.log('[ControlPanel] mode:', mode, 'referenceImages:', referenceImages.length);
+
   return (
     <div className="w-[420px] flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -64,6 +69,18 @@ export function ControlPanel({
             onRemoveImage={onRemoveReferenceImage}
             disabled={isGenerating}
           />
+        )}
+
+        {/* Mask Editor (only for image-to-image mode with uploaded image) */}
+        {mode === 'image-to-image' && referenceImages.length > 0 && (
+          <>
+            {console.log('[ControlPanel] Rendering MaskEditor with image:', referenceImages[0]?.substring(0, 50))}
+            <MaskEditor
+              sourceImage={referenceImages[0]}
+              onMaskChange={onMaskChange}
+              disabled={isGenerating}
+            />
+          </>
         )}
 
         {/* Prompt Input */}

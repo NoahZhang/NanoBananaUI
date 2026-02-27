@@ -2,6 +2,7 @@ export { ControlPanel } from './ControlPanel';
 export { ModeTabs } from './ModeTabs';
 export { ModelSelector } from './ModelSelector';
 export { ImageDropzone } from './ImageDropzone';
+export { MaskEditor } from './MaskEditor';
 export { PromptInput } from './PromptInput';
 export { AspectRatioSelector } from './AspectRatioSelector';
 export { ImageCountSelector } from './ImageCountSelector';

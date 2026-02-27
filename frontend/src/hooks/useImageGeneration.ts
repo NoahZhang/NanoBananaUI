@@ -30,6 +30,7 @@ export function useImageGeneration() {
   const [imageCount, setImageCount] = useState(1);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
+  const [maskImage, setMaskImage] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +39,7 @@ export function useImageGeneration() {
     setMode(newMode);
     setPrompt('');
     setReferenceImages([]);
+    setMaskImage('');
     setError(null);
   }, []);
 
@@ -83,9 +85,14 @@ export function useImageGeneration() {
 
       const newImages: GeneratedImage[] = [];
 
+      // 如果有遮罩图（合成图），使用合成图；否则使用原图
+      const imagesToSend = mode === 'image-to-image'
+        ? (maskImage ? [maskImage] : referenceImages)
+        : undefined;
+
       for await (const chunk of streamMessage({
         message: prompt,
-        images: mode === 'image-to-image' ? referenceImages : undefined,
+        images: imagesToSend,
         image_settings: Object.keys(settings).length > 0 ? settings : undefined,
       })) {
         console.log('Received chunk:', chunk);
@@ -117,7 +124,7 @@ export function useImageGeneration() {
     } finally {
       setIsGenerating(false);
     }
-  }, [prompt, mode, referenceImages, aspectRatio, resolution, imageCount]);
+  }, [prompt, mode, referenceImages, maskImage, aspectRatio, resolution, imageCount]);
 
   const removeGeneratedImage = useCallback((id: string) => {
     setGeneratedImages((prev) => prev.filter((img) => img.id !== id));
@@ -139,6 +146,7 @@ export function useImageGeneration() {
   const clearAll = useCallback(() => {
     setPrompt('');
     setReferenceImages([]);
+    setMaskImage('');
     setGeneratedImages([]);
     setError(null);
   }, []);
@@ -148,6 +156,7 @@ export function useImageGeneration() {
     mode,
     prompt,
     referenceImages,
+    maskImage,
     aspectRatio,
     resolution,
     imageCount,
@@ -158,6 +167,7 @@ export function useImageGeneration() {
     // Setters
     handleModeChange,
     setPrompt,
+    setMaskImage,
     setAspectRatio,
     setResolution,
     setImageCount,

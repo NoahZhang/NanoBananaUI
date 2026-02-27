@@ -18,6 +18,7 @@ function App() {
     error,
     handleModeChange,
     setPrompt,
+    setMaskImage,
     setAspectRatio,
     setResolution,
     setImageCount,
@@ -103,6 +104,7 @@ function App() {
           referenceImages={referenceImages}
           onAddReferenceImage={addReferenceImage}
           onRemoveReferenceImage={removeReferenceImage}
+          onMaskChange={setMaskImage}
           prompt={prompt}
           onPromptChange={setPrompt}
           aspectRatio={aspectRatio}
