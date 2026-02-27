@@ -27,11 +27,12 @@ export function useImageGeneration() {
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState('');
   const [resolution, setResolution] = useState('');
-  const [imageCount, setImageCount] = useState(1);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [maskImage, setMaskImage] = useState<string>('');
   const [model, setModel] = useState<string>('');
+  const [thinkingLevel, setThinkingLevel] = useState<string>('minimal');
+  const [googleSearch, setGoogleSearch] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,6 +81,12 @@ export function useImageGeneration() {
       if (resolution) {
         settings.resolution = resolution;
       }
+      if (thinkingLevel && thinkingLevel !== 'minimal') {
+        settings.thinking_level = thinkingLevel;
+      }
+      if (googleSearch) {
+        settings.google_search = true;
+      }
       const newImages: GeneratedImage[] = [];
 
       // 如果有遮罩图（合成图），使用合成图；否则使用原图
@@ -122,7 +129,7 @@ export function useImageGeneration() {
     } finally {
       setIsGenerating(false);
     }
-  }, [prompt, mode, model, referenceImages, maskImage, aspectRatio, resolution, imageCount]);
+  }, [prompt, mode, model, referenceImages, maskImage, aspectRatio, resolution, thinkingLevel, googleSearch]);
 
   const removeGeneratedImage = useCallback((id: string) => {
     setGeneratedImages((prev) => prev.filter((img) => img.id !== id));
@@ -158,7 +165,8 @@ export function useImageGeneration() {
     maskImage,
     aspectRatio,
     resolution,
-    imageCount,
+    thinkingLevel,
+    googleSearch,
     generatedImages,
     selectedImage,
     isGenerating,
@@ -170,7 +178,8 @@ export function useImageGeneration() {
     setMaskImage,
     setAspectRatio,
     setResolution,
-    setImageCount,
+    setThinkingLevel,
+    setGoogleSearch,
     setSelectedImage,
     // Actions
     addReferenceImage,

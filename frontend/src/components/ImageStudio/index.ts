@@ -7,5 +7,7 @@ export { PromptInput } from './PromptInput';
 export { AspectRatioSelector } from './AspectRatioSelector';
 export { ImageCountSelector } from './ImageCountSelector';
 export { ResolutionSelector } from './ResolutionSelector';
+export { ThinkingLevelSelector } from './ThinkingLevelSelector';
+export { GoogleSearchToggle } from './GoogleSearchToggle';
 export { GenerateButton } from './GenerateButton';
 export { ImageGallery } from './ImageGallery';

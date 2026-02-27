@@ -5,10 +5,11 @@ import { MaskEditor } from './MaskEditor';
 import { PromptInput } from './PromptInput';
 import { AspectRatioSelector } from './AspectRatioSelector';
 import { ResolutionSelector } from './ResolutionSelector';
-import { ImageCountSelector } from './ImageCountSelector';
+import { ThinkingLevelSelector } from './ThinkingLevelSelector';
+import { GoogleSearchToggle } from './GoogleSearchToggle';
 import { GenerateButton } from './GenerateButton';
 import { GenerationMode } from '../../hooks/useImageGeneration';
-import { ModelInfo } from '../../services/api';
+import { ModelInfo, getModelConfig } from '../../services/api';
 
 interface ControlPanelProps {
   mode: GenerationMode;
@@ -26,8 +27,10 @@ interface ControlPanelProps {
   onAspectRatioChange: (value: string) => void;
   resolution: string;
   onResolutionChange: (value: string) => void;
-  imageCount: number;
-  onImageCountChange: (value: number) => void;
+  thinkingLevel: string;
+  onThinkingLevelChange: (value: string) => void;
+  googleSearch: boolean;
+  onGoogleSearchChange: (value: boolean) => void;
   onGenerate: () => void;
   isGenerating: boolean;
   error: string | null;
@@ -49,13 +52,15 @@ export function ControlPanel({
   onAspectRatioChange,
   resolution,
   onResolutionChange,
-  imageCount,
-  onImageCountChange,
+  thinkingLevel,
+  onThinkingLevelChange,
+  googleSearch,
+  onGoogleSearchChange,
   onGenerate,
   isGenerating,
   error,
 }: ControlPanelProps) {
-  console.log('[ControlPanel] mode:', mode, 'referenceImages:', referenceImages.length);
+  const modelConfig = getModelConfig(selectedModel);
 
   return (
     <div className="w-[420px] flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-full">
@@ -83,14 +88,11 @@ export function ControlPanel({
 
         {/* Mask Editor (only for image-to-image mode with uploaded image) */}
         {mode === 'image-to-image' && referenceImages.length > 0 && (
-          <>
-            {console.log('[ControlPanel] Rendering MaskEditor with image:', referenceImages[0]?.substring(0, 50))}
-            <MaskEditor
-              sourceImage={referenceImages[0]}
-              onMaskChange={onMaskChange}
-              disabled={isGenerating}
-            />
-          </>
+          <MaskEditor
+            sourceImage={referenceImages[0]}
+            onMaskChange={onMaskChange}
+            disabled={isGenerating}
+          />
         )}
 
         {/* Prompt Input */}
@@ -105,6 +107,7 @@ export function ControlPanel({
         <AspectRatioSelector
           value={aspectRatio}
           onChange={onAspectRatioChange}
+          options={modelConfig.aspectRatios}
           disabled={isGenerating}
         />
 
@@ -112,8 +115,27 @@ export function ControlPanel({
         <ResolutionSelector
           value={resolution}
           onChange={onResolutionChange}
+          options={modelConfig.resolutions}
           disabled={isGenerating}
         />
+
+        {/* Thinking Level (Flash model only) */}
+        {modelConfig.supportsThinking && (
+          <ThinkingLevelSelector
+            value={thinkingLevel}
+            onChange={onThinkingLevelChange}
+            disabled={isGenerating}
+          />
+        )}
+
+        {/* Google Search (Flash model only) */}
+        {modelConfig.supportsGoogleSearch && (
+          <GoogleSearchToggle
+            value={googleSearch}
+            onChange={onGoogleSearchChange}
+            disabled={isGenerating}
+          />
+        )}
 
         {/* Error Message */}
         {error && (

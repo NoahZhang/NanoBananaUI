@@ -45,9 +45,13 @@ async def chat(request: ChatRequest):
         # Extract image settings
         aspect_ratio = None
         resolution = None
+        thinking_level = None
+        google_search = None
         if request.image_settings:
             aspect_ratio = request.image_settings.aspect_ratio
             resolution = request.image_settings.resolution
+            thinking_level = request.image_settings.thinking_level
+            google_search = request.image_settings.google_search
 
         model = request.model or DEFAULT_MODEL
 
@@ -57,6 +61,8 @@ async def chat(request: ChatRequest):
             history=history,
             aspect_ratio=aspect_ratio,
             resolution=resolution,
+            thinking_level=thinking_level,
+            google_search=google_search,
             model=model,
         )
 
@@ -86,12 +92,16 @@ async def chat_stream(request: ChatRequest):
             # Extract image settings
             aspect_ratio = None
             resolution = None
+            thinking_level = None
+            google_search = None
             if request.image_settings:
                 aspect_ratio = request.image_settings.aspect_ratio
                 resolution = request.image_settings.resolution
+                thinking_level = request.image_settings.thinking_level
+                google_search = request.image_settings.google_search
 
             model = request.model or DEFAULT_MODEL
-            print(f"[chat_stream] Calling vertex_ai_service.generate_stream with model={model}...")
+            print(f"[chat_stream] model={model}, aspect_ratio={aspect_ratio}, resolution={resolution}, thinking_level={thinking_level}, google_search={google_search}")
             response_id = str(uuid.uuid4())
 
             async for chunk in vertex_ai_service.generate_stream(
@@ -100,6 +110,8 @@ async def chat_stream(request: ChatRequest):
                 history=history,
                 aspect_ratio=aspect_ratio,
                 resolution=resolution,
+                thinking_level=thinking_level,
+                google_search=google_search,
                 model=model,
             ):
                 if "text" in chunk:

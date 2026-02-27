@@ -6,8 +6,10 @@ export interface ChatMessage {
 }
 
 export interface ImageSettings {
-  aspect_ratio?: string;  // 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
-  resolution?: string;    // 1K, 2K, 4K
+  aspect_ratio?: string;
+  resolution?: string;
+  thinking_level?: string;  // "minimal" or "high" (Flash model only)
+  google_search?: boolean;  // Enable Google Search grounding (Flash model only)
 }
 
 export interface ChatRequest {
@@ -28,26 +30,80 @@ export interface ModelsResponse {
   default: string;
 }
 
-export const ASPECT_RATIOS = [
-  { value: '', label: 'Auto' },
-  { value: '1:1', label: '1:1 (Square)' },
-  { value: '16:9', label: '16:9 (Landscape)' },
-  { value: '9:16', label: '9:16 (Portrait)' },
-  { value: '4:3', label: '4:3' },
-  { value: '3:4', label: '3:4' },
-  { value: '3:2', label: '3:2' },
-  { value: '2:3', label: '2:3' },
-  { value: '5:4', label: '5:4' },
-  { value: '4:5', label: '4:5' },
-  { value: '21:9', label: '21:9 (Ultrawide)' },
+// Per-model aspect ratio and resolution options
+export interface AspectRatioOption {
+  value: string;
+  label: string;
+  width: number;
+  height: number;
+}
+
+export interface ResolutionOption {
+  value: string;
+  label: string;
+}
+
+const BASE_ASPECT_RATIOS: AspectRatioOption[] = [
+  { value: '', label: 'Auto', width: 16, height: 16 },
+  { value: '1:1', label: '1:1', width: 16, height: 16 },
+  { value: '16:9', label: '16:9', width: 20, height: 11 },
+  { value: '9:16', label: '9:16', width: 11, height: 20 },
+  { value: '4:3', label: '4:3', width: 18, height: 14 },
+  { value: '3:4', label: '3:4', width: 14, height: 18 },
+  { value: '3:2', label: '3:2', width: 18, height: 12 },
+  { value: '2:3', label: '2:3', width: 12, height: 18 },
+  { value: '5:4', label: '5:4', width: 18, height: 14 },
+  { value: '4:5', label: '4:5', width: 14, height: 18 },
+  { value: '21:9', label: '21:9', width: 24, height: 10 },
 ];
 
-export const RESOLUTIONS = [
+const FLASH_EXTRA_ASPECT_RATIOS: AspectRatioOption[] = [
+  { value: '4:1', label: '4:1', width: 24, height: 6 },
+  { value: '1:4', label: '1:4', width: 6, height: 24 },
+  { value: '8:1', label: '8:1', width: 24, height: 3 },
+  { value: '1:8', label: '1:8', width: 3, height: 24 },
+];
+
+const BASE_RESOLUTIONS: ResolutionOption[] = [
   { value: '', label: 'Auto' },
   { value: '1K', label: '1K' },
   { value: '2K', label: '2K' },
   { value: '4K', label: '4K' },
 ];
+
+export interface ModelConfig {
+  aspectRatios: AspectRatioOption[];
+  resolutions: ResolutionOption[];
+  supportsThinking: boolean;
+  supportsGoogleSearch: boolean;
+}
+
+export const MODEL_CONFIGS: Record<string, ModelConfig> = {
+  'gemini-3-pro-image-preview': {
+    aspectRatios: BASE_ASPECT_RATIOS,
+    resolutions: BASE_RESOLUTIONS,
+    supportsThinking: false,
+    supportsGoogleSearch: false,
+  },
+  'gemini-3.1-flash-image-preview': {
+    aspectRatios: [...BASE_ASPECT_RATIOS, ...FLASH_EXTRA_ASPECT_RATIOS],
+    resolutions: [
+      { value: '', label: 'Auto' },
+      { value: '0.5K', label: '0.5K' },
+      { value: '1K', label: '1K' },
+      { value: '2K', label: '2K' },
+      { value: '4K', label: '4K' },
+    ],
+    supportsThinking: true,
+    supportsGoogleSearch: true,
+  },
+};
+
+export const DEFAULT_MODEL_CONFIG: ModelConfig = MODEL_CONFIGS['gemini-3-pro-image-preview'];
+
+export function getModelConfig(modelId: string): ModelConfig {
+  return MODEL_CONFIGS[modelId] || DEFAULT_MODEL_CONFIG;
+}
 
 export interface ChatResponse {
   response: string;

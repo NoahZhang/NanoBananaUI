@@ -12,7 +12,8 @@ function App() {
     referenceImages,
     aspectRatio,
     resolution,
-    imageCount,
+    thinkingLevel,
+    googleSearch,
     generatedImages,
     selectedImage,
     isGenerating,
@@ -23,7 +24,8 @@ function App() {
     setMaskImage,
     setAspectRatio,
     setResolution,
-    setImageCount,
+    setThinkingLevel,
+    setGoogleSearch,
     setSelectedImage,
     addReferenceImage,
     removeReferenceImage,
@@ -33,15 +35,13 @@ function App() {
   } = useImageGeneration();
 
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
-  const [modelName, setModelName] = useState<string>('');
   const [models, setModels] = useState<ModelInfo[]>([]);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const [health, modelsData] = await Promise.all([checkHealth(), fetchModels()]);
+        const [, modelsData] = await Promise.all([checkHealth(), fetchModels()]);
         setIsConnected(true);
-        setModelName(health.model);
         setModels(modelsData.models);
         if (!selectedModel) {
           setModel(modelsData.default);
@@ -120,8 +120,10 @@ function App() {
           onAspectRatioChange={setAspectRatio}
           resolution={resolution}
           onResolutionChange={setResolution}
-          imageCount={imageCount}
-          onImageCountChange={setImageCount}
+          thinkingLevel={thinkingLevel}
+          onThinkingLevelChange={setThinkingLevel}
+          googleSearch={googleSearch}
+          onGoogleSearchChange={setGoogleSearch}
           onGenerate={generate}
           isGenerating={isGenerating}
           error={error}

@@ -89,10 +89,15 @@ class VertexAIService:
 
     def _build_config(
         self,
+        model: str | None = None,
         aspect_ratio: str | None = None,
         resolution: str | None = None,
+        thinking_level: str | None = None,
+        google_search: bool | None = None,
     ) -> types.GenerateContentConfig:
         """Build generation config with image settings."""
+        is_flash = model and "flash" in model
+
         # Build image config if any image settings are provided
         image_config = None
         if aspect_ratio or resolution:
@@ -100,13 +105,24 @@ class VertexAIService:
             if aspect_ratio:
                 image_config_params["aspect_ratio"] = aspect_ratio
             if resolution:
-                # resolution uses image_size parameter with values: 1K, 2K, 4K
                 image_config_params["image_size"] = resolution
             image_config = types.ImageConfig(**image_config_params)
+
+        # Build thinking config (Flash model only)
+        thinking_config = None
+        if is_flash and thinking_level:
+            thinking_config = types.ThinkingConfig(thinking_level=thinking_level)
+
+        # Build tools (Google Search grounding, Flash model only)
+        tools = None
+        if is_flash and google_search:
+            tools = [types.Tool(google_search=types.GoogleSearch())]
 
         return types.GenerateContentConfig(
             response_modalities=["TEXT", "IMAGE"],
             image_config=image_config,
+            thinking_config=thinking_config,
+            tools=tools,
         )
 
     def _extract_response(self, response) -> tuple[str, list[str]]:
@@ -133,15 +149,18 @@ class VertexAIService:
         history: list[dict] | None = None,
         aspect_ratio: str | None = None,
         resolution: str | None = None,
+        thinking_level: str | None = None,
+        google_search: bool | None = None,
         model: str | None = None,
     ) -> tuple[str, list[str]]:
         """Generate a non-streaming response. Returns (text, images)."""
         self.initialize()
 
         # Build the content and config
+        use_model = model or VERTEX_MODEL_NAME
         parts = self._build_contents(message, images)
         history_contents = self._build_history(history)
-        config = self._build_config(aspect_ratio, resolution)
+        config = self._build_config(use_model, aspect_ratio, resolution, thinking_level, google_search)
 
         # Build full contents list
         if history_contents:
@@ -153,7 +172,7 @@ class VertexAIService:
 
         # Generate response
         response = self._client.models.generate_content(
-            model=model or VERTEX_MODEL_NAME,
+            model=use_model,
             contents=contents,
             config=config,
         )
@@ -167,18 +186,21 @@ class VertexAIService:
         history: list[dict] | None = None,
         aspect_ratio: str | None = None,
         resolution: str | None = None,
+        thinking_level: str | None = None,
+        google_search: bool | None = None,
         model: str | None = None,
     ) -> AsyncGenerator[dict, None]:
         """Generate a streaming response. Yields {text, images} chunks."""
         print(f"[generate_stream] Starting generation with message: {message[:100]}...")
-        print(f"[generate_stream] aspect_ratio={aspect_ratio}, resolution={resolution}")
+        print(f"[generate_stream] aspect_ratio={aspect_ratio}, resolution={resolution}, google_search={google_search}")
 
         self.initialize()
 
         # Build the content and config
+        use_model = model or VERTEX_MODEL_NAME
         parts = self._build_contents(message, images)
         history_contents = self._build_history(history)
-        config = self._build_config(aspect_ratio, resolution)
+        config = self._build_config(use_model, aspect_ratio, resolution, thinking_level, google_search)
         print(f"[generate_stream] Config: {config}")
 
         # Build full contents list
@@ -188,9 +210,6 @@ class VertexAIService:
             ]
         else:
             contents = parts
-
-        # Generate streaming response
-        use_model = model or VERTEX_MODEL_NAME
         print(f"[generate_stream] Calling generate_content_stream with model={use_model}...")
         chunk_count = 0
         for chunk in self._client.models.generate_content_stream(

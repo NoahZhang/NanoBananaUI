@@ -1,26 +1,16 @@
+import { AspectRatioOption } from '../../services/api';
+
 interface AspectRatioSelectorProps {
   value: string;
   onChange: (value: string) => void;
+  options: AspectRatioOption[];
   disabled?: boolean;
 }
-
-const ASPECT_RATIOS = [
-  { value: '', label: 'Auto', width: 16, height: 16 },
-  { value: '1:1', label: '1:1', width: 16, height: 16 },
-  { value: '16:9', label: '16:9', width: 20, height: 11 },
-  { value: '9:16', label: '9:16', width: 11, height: 20 },
-  { value: '4:3', label: '4:3', width: 18, height: 14 },
-  { value: '3:4', label: '3:4', width: 14, height: 18 },
-  { value: '3:2', label: '3:2', width: 18, height: 12 },
-  { value: '2:3', label: '2:3', width: 12, height: 18 },
-  { value: '5:4', label: '5:4', width: 18, height: 14 },
-  { value: '4:5', label: '4:5', width: 14, height: 18 },
-  { value: '21:9', label: '21:9', width: 24, height: 10 },
-];
 
 export function AspectRatioSelector({
   value,
   onChange,
+  options,
   disabled = false,
 }: AspectRatioSelectorProps) {
   return (
@@ -29,7 +19,7 @@ export function AspectRatioSelector({
         Aspect Ratio
       </label>
       <div className="grid grid-cols-6 gap-2">
-        {ASPECT_RATIOS.map((ratio) => (
+        {options.map((ratio) => (
           <button
             key={ratio.value || 'auto'}
             onClick={() => onChange(ratio.value)}

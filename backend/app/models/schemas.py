@@ -11,6 +11,8 @@ class ChatMessage(BaseModel):
 class ImageSettings(BaseModel):
     aspect_ratio: Optional[str] = None  # 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
     resolution: Optional[str] = None  # 1K, 2K, 4K
+    thinking_level: Optional[str] = None  # "minimal" or "high" (Flash model only)
+    google_search: Optional[bool] = None  # Enable Google Search grounding (Flash model only)
 
 
 class ChatRequest(BaseModel):
