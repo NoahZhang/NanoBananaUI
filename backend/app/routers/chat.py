@@ -9,9 +9,11 @@ from app.models.schemas import (
     ChatRequest,
     ChatResponse,
     HealthResponse,
+    ModelInfo,
+    ModelsResponse,
 )
 from app.services.vertex_ai import vertex_ai_service
-from app.config import MAX_IMAGE_SIZE_MB, ALLOWED_IMAGE_TYPES, VERTEX_MODEL_NAME
+from app.config import MAX_IMAGE_SIZE_MB, ALLOWED_IMAGE_TYPES, VERTEX_MODEL_NAME, AVAILABLE_MODELS, DEFAULT_MODEL
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -20,6 +22,15 @@ router = APIRouter(prefix="/api", tags=["chat"])
 async def health_check():
     """Health check endpoint."""
     return HealthResponse(status="healthy", model=VERTEX_MODEL_NAME)
+
+
+@router.get("/models", response_model=ModelsResponse)
+async def list_models():
+    """List available models."""
+    return ModelsResponse(
+        models=[ModelInfo(**m) for m in AVAILABLE_MODELS],
+        default=DEFAULT_MODEL,
+    )
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -38,12 +49,15 @@ async def chat(request: ChatRequest):
             aspect_ratio = request.image_settings.aspect_ratio
             resolution = request.image_settings.resolution
 
+        model = request.model or DEFAULT_MODEL
+
         response_text, response_images = await vertex_ai_service.generate_response(
             message=request.message,
             images=request.images,
             history=history,
             aspect_ratio=aspect_ratio,
             resolution=resolution,
+            model=model,
         )
 
         return ChatResponse(
@@ -76,7 +90,8 @@ async def chat_stream(request: ChatRequest):
                 aspect_ratio = request.image_settings.aspect_ratio
                 resolution = request.image_settings.resolution
 
-            print(f"[chat_stream] Calling vertex_ai_service.generate_stream...")
+            model = request.model or DEFAULT_MODEL
+            print(f"[chat_stream] Calling vertex_ai_service.generate_stream with model={model}...")
             response_id = str(uuid.uuid4())
 
             async for chunk in vertex_ai_service.generate_stream(
@@ -85,6 +100,7 @@ async def chat_stream(request: ChatRequest):
                 history=history,
                 aspect_ratio=aspect_ratio,
                 resolution=resolution,
+                model=model,
             ):
                 if "text" in chunk:
                     print(f"[chat_stream] Sending text chunk to client")

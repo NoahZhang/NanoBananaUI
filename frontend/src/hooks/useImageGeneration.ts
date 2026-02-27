@@ -31,6 +31,7 @@ export function useImageGeneration() {
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [maskImage, setMaskImage] = useState<string>('');
+  const [model, setModel] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,10 +80,6 @@ export function useImageGeneration() {
       if (resolution) {
         settings.resolution = resolution;
       }
-      if (imageCount > 1) {
-        settings.number_of_images = imageCount;
-      }
-
       const newImages: GeneratedImage[] = [];
 
       // 如果有遮罩图（合成图），使用合成图；否则使用原图
@@ -92,6 +89,7 @@ export function useImageGeneration() {
 
       for await (const chunk of streamMessage({
         message: prompt,
+        model: model || undefined,
         images: imagesToSend,
         image_settings: Object.keys(settings).length > 0 ? settings : undefined,
       })) {
@@ -124,7 +122,7 @@ export function useImageGeneration() {
     } finally {
       setIsGenerating(false);
     }
-  }, [prompt, mode, referenceImages, maskImage, aspectRatio, resolution, imageCount]);
+  }, [prompt, mode, model, referenceImages, maskImage, aspectRatio, resolution, imageCount]);
 
   const removeGeneratedImage = useCallback((id: string) => {
     setGeneratedImages((prev) => prev.filter((img) => img.id !== id));
@@ -155,6 +153,7 @@ export function useImageGeneration() {
     // State
     mode,
     prompt,
+    model,
     referenceImages,
     maskImage,
     aspectRatio,
@@ -167,6 +166,7 @@ export function useImageGeneration() {
     // Setters
     handleModeChange,
     setPrompt,
+    setModel,
     setMaskImage,
     setAspectRatio,
     setResolution,

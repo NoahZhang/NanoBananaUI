@@ -8,14 +8,24 @@ export interface ChatMessage {
 export interface ImageSettings {
   aspect_ratio?: string;  // 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
   resolution?: string;    // 1K, 2K, 4K
-  number_of_images?: number;  // 1-4
 }
 
 export interface ChatRequest {
   message: string;
+  model?: string;  // Model ID
   images?: string[];  // 原图或带遮罩的合成图
   history?: ChatMessage[];
   image_settings?: ImageSettings;
+}
+
+export interface ModelInfo {
+  id: string;
+  name: string;
+}
+
+export interface ModelsResponse {
+  models: ModelInfo[];
+  default: string;
 }
 
 export const ASPECT_RATIOS = [
@@ -151,6 +161,14 @@ export async function checkHealth(): Promise<{ status: string; model: string }> 
   const response = await fetch(`${API_BASE}/health`);
   if (!response.ok) {
     throw new Error('Health check failed');
+  }
+  return response.json();
+}
+
+export async function fetchModels(): Promise<ModelsResponse> {
+  const response = await fetch(`${API_BASE}/models`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch models');
   }
   return response.json();
 }

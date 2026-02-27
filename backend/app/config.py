@@ -17,6 +17,13 @@ VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "sensoro-gemini")
 VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "global")
 VERTEX_MODEL_NAME = os.getenv("VERTEX_MODEL_NAME", "gemini-3-pro-image-preview")
 
+# Available models
+AVAILABLE_MODELS = [
+    {"id": "gemini-3-pro-image-preview", "name": "Gemini 3 Pro Image"},
+    {"id": "gemini-3.1-flash-image-preview", "name": "Gemini 3.1 Flash Image"},
+]
+DEFAULT_MODEL = VERTEX_MODEL_NAME
+
 # Credentials path
 # In Docker: /app/auth/sensoro-gemini-*.json
 # Local: PROJECT_ROOT/auth/sensoro-gemini-*.json

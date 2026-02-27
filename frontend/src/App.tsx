@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { ControlPanel, ImageGallery } from './components/ImageStudio';
 import { useImageGeneration } from './hooks/useImageGeneration';
-import { checkHealth } from './services/api';
+import { checkHealth, fetchModels, ModelInfo } from './services/api';
 import { Banana, RefreshCw } from 'lucide-react';
 
 function App() {
   const {
     mode,
     prompt,
+    model: selectedModel,
     referenceImages,
     aspectRatio,
     resolution,
@@ -18,6 +19,7 @@ function App() {
     error,
     handleModeChange,
     setPrompt,
+    setModel,
     setMaskImage,
     setAspectRatio,
     setResolution,
@@ -32,19 +34,24 @@ function App() {
 
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [modelName, setModelName] = useState<string>('');
+  const [models, setModels] = useState<ModelInfo[]>([]);
 
   useEffect(() => {
-    const checkConnection = async () => {
+    const init = async () => {
       try {
-        const health = await checkHealth();
+        const [health, modelsData] = await Promise.all([checkHealth(), fetchModels()]);
         setIsConnected(true);
         setModelName(health.model);
+        setModels(modelsData.models);
+        if (!selectedModel) {
+          setModel(modelsData.default);
+        }
       } catch {
         setIsConnected(false);
       }
     };
 
-    checkConnection();
+    init();
   }, []);
 
   return (
@@ -54,9 +61,9 @@ function App() {
         <div className="flex items-center gap-2">
           <Banana className="w-8 h-8 text-yellow-500" />
           <h1 className="text-xl font-bold text-gray-800">NanoBananaUI</h1>
-          {modelName && (
+          {selectedModel && (
             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {modelName}
+              {models.find((m) => m.id === selectedModel)?.name || selectedModel}
             </span>
           )}
         </div>
@@ -100,7 +107,9 @@ function App() {
         <ControlPanel
           mode={mode}
           onModeChange={handleModeChange}
-          modelName={modelName || 'Nano Banana'}
+          models={models}
+          selectedModel={selectedModel}
+          onModelChange={setModel}
           referenceImages={referenceImages}
           onAddReferenceImage={addReferenceImage}
           onRemoveReferenceImage={removeReferenceImage}

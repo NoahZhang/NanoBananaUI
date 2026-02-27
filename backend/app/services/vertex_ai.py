@@ -133,6 +133,7 @@ class VertexAIService:
         history: list[dict] | None = None,
         aspect_ratio: str | None = None,
         resolution: str | None = None,
+        model: str | None = None,
     ) -> tuple[str, list[str]]:
         """Generate a non-streaming response. Returns (text, images)."""
         self.initialize()
@@ -152,7 +153,7 @@ class VertexAIService:
 
         # Generate response
         response = self._client.models.generate_content(
-            model=VERTEX_MODEL_NAME,
+            model=model or VERTEX_MODEL_NAME,
             contents=contents,
             config=config,
         )
@@ -166,6 +167,7 @@ class VertexAIService:
         history: list[dict] | None = None,
         aspect_ratio: str | None = None,
         resolution: str | None = None,
+        model: str | None = None,
     ) -> AsyncGenerator[dict, None]:
         """Generate a streaming response. Yields {text, images} chunks."""
         print(f"[generate_stream] Starting generation with message: {message[:100]}...")
@@ -188,10 +190,11 @@ class VertexAIService:
             contents = parts
 
         # Generate streaming response
-        print("[generate_stream] Calling generate_content_stream...")
+        use_model = model or VERTEX_MODEL_NAME
+        print(f"[generate_stream] Calling generate_content_stream with model={use_model}...")
         chunk_count = 0
         for chunk in self._client.models.generate_content_stream(
-            model=VERTEX_MODEL_NAME,
+            model=use_model,
             contents=contents,
             config=config,
         ):

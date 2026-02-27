@@ -11,14 +11,24 @@ class ChatMessage(BaseModel):
 class ImageSettings(BaseModel):
     aspect_ratio: Optional[str] = None  # 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
     resolution: Optional[str] = None  # 1K, 2K, 4K
-    number_of_images: Optional[int] = None  # 1-4
 
 
 class ChatRequest(BaseModel):
     message: str
+    model: Optional[str] = None  # Model ID, e.g. "gemini-3-pro-image-preview"
     images: Optional[list[str]] = None  # Base64 encoded images
     history: Optional[list[ChatMessage]] = None
     image_settings: Optional[ImageSettings] = None
+
+
+class ModelInfo(BaseModel):
+    id: str
+    name: str
+
+
+class ModelsResponse(BaseModel):
+    models: list[ModelInfo]
+    default: str
 
 
 class ChatResponse(BaseModel):
