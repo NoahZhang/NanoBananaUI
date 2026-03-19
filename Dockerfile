@@ -36,7 +36,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     # Default Vertex AI settings (can be overridden at runtime)
     VERTEX_PROJECT_ID=sensoro-gemini \
     VERTEX_LOCATION=global \
-    VERTEX_MODEL_NAME=gemini-3-pro-image-preview
+    VERTEX_MODEL_NAME=gemini-3-pro-image-preview \
+    # Authentication mode: "vertex_ai" or "ai_studio"
+    AUTH_MODE=vertex_ai \
+    GOOGLE_AI_STUDIO_API_KEY=""
 
 WORKDIR /app
 

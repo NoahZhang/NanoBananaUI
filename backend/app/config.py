@@ -1,6 +1,11 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env file (from backend/ directory)
+load_dotenv(Path(__file__).parent.parent / ".env")
+
 # Project root directory (NanoBananaUI/)
 # config.py -> app/ -> backend/ -> NanoBananaUI/
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -11,6 +16,11 @@ IS_DOCKER = DOCKER_ROOT.exists() and (DOCKER_ROOT / "frontend" / "dist").exists(
 
 # Use Docker paths if running in Docker, otherwise use project paths
 APP_ROOT = DOCKER_ROOT if IS_DOCKER else PROJECT_ROOT
+
+# Authentication mode: "vertex_ai" or "ai_studio"
+AUTH_MODE = os.getenv("AUTH_MODE", "vertex_ai")
+USE_AI_STUDIO = AUTH_MODE == "ai_studio"
+GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY")
 
 # Vertex AI Configuration (support environment variables)
 VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "sensoro-gemini")
@@ -24,23 +34,25 @@ AVAILABLE_MODELS = [
 ]
 DEFAULT_MODEL = VERTEX_MODEL_NAME
 
-# Credentials path
-# In Docker: /app/auth/sensoro-gemini-*.json
-# Local: PROJECT_ROOT/auth/sensoro-gemini-*.json
-AUTH_DIR = APP_ROOT / "auth"
-CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-if not CREDENTIALS_PATH:
-    # Auto-detect credentials file in auth directory
-    if AUTH_DIR.exists():
-        cred_files = list(AUTH_DIR.glob("*.json"))
-        if cred_files:
-            CREDENTIALS_PATH = cred_files[0]
+# Credentials path — only resolved in Vertex AI mode
+CREDENTIALS_PATH = None
+if not USE_AI_STUDIO:
+    # In Docker: /app/auth/sensoro-gemini-*.json
+    # Local: PROJECT_ROOT/auth/sensoro-gemini-*.json
+    AUTH_DIR = APP_ROOT / "auth"
+    CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if not CREDENTIALS_PATH:
+        # Auto-detect credentials file in auth directory
+        if AUTH_DIR.exists():
+            cred_files = list(AUTH_DIR.glob("*.json"))
+            if cred_files:
+                CREDENTIALS_PATH = cred_files[0]
+            else:
+                CREDENTIALS_PATH = AUTH_DIR / "sensoro-gemini-7d73824224ec.json"
         else:
-            CREDENTIALS_PATH = AUTH_DIR / "sensoro-gemini-7d73824224ec.json"
+            CREDENTIALS_PATH = PROJECT_ROOT / "auth" / "sensoro-gemini-7d73824224ec.json"
     else:
-        CREDENTIALS_PATH = PROJECT_ROOT / "auth" / "sensoro-gemini-7d73824224ec.json"
-else:
-    CREDENTIALS_PATH = Path(CREDENTIALS_PATH)
+        CREDENTIALS_PATH = Path(CREDENTIALS_PATH)
 
 # Frontend static files path (for Docker production)
 FRONTEND_DIST_PATH = APP_ROOT / "frontend" / "dist"

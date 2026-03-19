@@ -13,7 +13,7 @@ from app.models.schemas import (
     ModelsResponse,
 )
 from app.services.vertex_ai import vertex_ai_service
-from app.config import MAX_IMAGE_SIZE_MB, ALLOWED_IMAGE_TYPES, VERTEX_MODEL_NAME, AVAILABLE_MODELS, DEFAULT_MODEL
+from app.config import MAX_IMAGE_SIZE_MB, ALLOWED_IMAGE_TYPES, VERTEX_MODEL_NAME, AVAILABLE_MODELS, DEFAULT_MODEL, AUTH_MODE
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api", tags=["chat"])
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint."""
-    return HealthResponse(status="healthy", model=VERTEX_MODEL_NAME)
+    return HealthResponse(status="healthy", model=VERTEX_MODEL_NAME, auth_mode=AUTH_MODE)
 
 
 @router.get("/models", response_model=ModelsResponse)

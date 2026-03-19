@@ -10,6 +10,8 @@ from app.config import (
     VERTEX_LOCATION,
     VERTEX_MODEL_NAME,
     CREDENTIALS_PATH,
+    USE_AI_STUDIO,
+    GOOGLE_AI_STUDIO_API_KEY,
 )
 
 
@@ -19,23 +21,30 @@ class VertexAIService:
         self._initialized = False
 
     def initialize(self):
-        """Initialize Google GenAI client with service account credentials."""
+        """Initialize Google GenAI client based on auth mode."""
         if self._initialized:
             return
 
-        # Load service account credentials
-        credentials = service_account.Credentials.from_service_account_file(
-            str(CREDENTIALS_PATH),
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
+        if USE_AI_STUDIO:
+            if not GOOGLE_AI_STUDIO_API_KEY:
+                raise ValueError(
+                    "GOOGLE_AI_STUDIO_API_KEY must be set when AUTH_MODE=ai_studio"
+                )
+            self._client = genai.Client(api_key=GOOGLE_AI_STUDIO_API_KEY)
+        else:
+            # Load service account credentials
+            credentials = service_account.Credentials.from_service_account_file(
+                str(CREDENTIALS_PATH),
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            )
 
-        # Initialize the client for Vertex AI
-        self._client = genai.Client(
-            vertexai=True,
-            project=VERTEX_PROJECT_ID,
-            location=VERTEX_LOCATION,
-            credentials=credentials,
-        )
+            # Initialize the client for Vertex AI
+            self._client = genai.Client(
+                vertexai=True,
+                project=VERTEX_PROJECT_ID,
+                location=VERTEX_LOCATION,
+                credentials=credentials,
+            )
         self._initialized = True
 
     def _build_contents(
