@@ -23,7 +23,7 @@ USE_AI_STUDIO = AUTH_MODE == "ai_studio"
 GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY")
 
 # Vertex AI Configuration (support environment variables)
-VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "sensoro-gemini")
+VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "your-project-id")
 VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "global")
 VERTEX_MODEL_NAME = os.getenv("VERTEX_MODEL_NAME", "gemini-3-pro-image-preview")
 
