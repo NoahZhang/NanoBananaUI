@@ -34,7 +34,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/backend \
     # Default Vertex AI settings (can be overridden at runtime)
-    VERTEX_PROJECT_ID=xxxx-gemini \
+    VERTEX_PROJECT_ID=your-project-id \
     VERTEX_LOCATION=global \
     VERTEX_MODEL_NAME=gemini-3-pro-image-preview \
     # Authentication mode: "vertex_ai" or "ai_studio"
